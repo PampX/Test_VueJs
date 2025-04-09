@@ -92,6 +92,7 @@ export default {
 }
 
 .selected {
+    z-index: 1000;
     outline: 3px solid yellow;
 }
 </style>

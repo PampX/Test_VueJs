@@ -1,9 +1,12 @@
 <template>
     <div class="board">
         <div v-for="(row, rowIndex) in board" :key="rowIndex" class="row">
-            <div v-for="(cell, colIndex) in row" :key="colIndex" class="cell" :class="getCellColor(rowIndex, colIndex)">
+            <div v-for="(cell, colIndex) in row" :key="colIndex" class="cell"
+                :class="[getCellColor(rowIndex, colIndex), isSelected(rowIndex, colIndex) ? 'selected' : '']"
+                @click="handleClick(rowIndex, colIndex)">
                 {{ cell }}
             </div>
+
         </div>
     </div>
 </template>
@@ -23,11 +26,38 @@ export default {
                 ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
                 ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
             ],
+            selectedCell: null,
         };
     },
     methods: {
         getCellColor(row, col) {
             return (row + col) % 2 === 0 ? 'light' : 'dark';
+        },
+        isSelected(row,col){
+            return this.selectedCell && 
+            this.selectedCell.row === row &&
+            this.selectedCell.col === col
+        },
+        handleClick(row,col){
+            const cellContent = this.board[row][col];
+
+            if (this.selectedCell === null) {
+                // step 1 : select a piece
+                if (cellContent !== '') {
+                    this.selectedCell = {row,col}
+                }
+            } else {
+                // step 2 : move the piece 
+                const from = this.selectedCell
+                const piece = this.board[from.row][from.col]
+
+                // simple move
+                this.board[row][col] = piece
+                this.board[from.row][from.col] = ''
+
+                // reset 
+                this.selectedCell = null
+            }
         }
     }
 };
@@ -59,5 +89,9 @@ export default {
 
 .dark {
     background-color: #b58863;
+}
+
+.selected {
+    outline: 3px solid yellow;
 }
 </style>

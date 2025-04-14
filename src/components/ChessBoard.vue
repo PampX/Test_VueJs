@@ -29,7 +29,8 @@ export default {
                 ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
             ],
             selectedCell: null,
-            possibleMoves: []
+            possibleMoves: [], 
+            currentPlayer: 'white'
         };
     },
     methods: {
@@ -64,6 +65,8 @@ export default {
                     // simple move
                     this.board[row][col] = piece
                     this.board[from.row][from.col] = ''
+
+                    this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
                 }
 
                 // reset 
@@ -75,7 +78,9 @@ export default {
 
             const isWhite = piece === '♙';
             const isBlack = piece === '♟';
+            const isRook = piece === '♖' || piece === '♜';
 
+            // Pawn
             if (isWhite) {
                 // move forward if empty
                 if (this.board[row - 1] && this.board[row - 1][col] === '') {
@@ -95,13 +100,66 @@ export default {
                     }
                 }
             }
+
+            // Rook
+            if (isRook) {
+                // Haut
+                for (let r = row - 1; r >= 0; r--) {
+                    if (this.board[r][col] === '') {
+                        moves.push({ row: r, col });
+                    } else {
+                        if (!this.isPlayerPiece(this.board[r][col])) {
+                            moves.push({ row: r, col });
+                        }
+                        break;
+                    }
+                }
+                // Bas
+                for (let r = row + 1; r < 8; r++) {
+                    if (this.board[r][col] === '') {
+                        moves.push({ row: r, col });
+                    } else {
+                        if (!this.isPlayerPiece(this.board[r][col])) {
+                            moves.push({ row: r, col });
+                        }
+                        break;
+                    }
+                }
+                // Gauche
+                for (let c = col - 1; c >= 0; c--) {
+                    if (this.board[row][c] === '') {
+                        moves.push({ row, col: c });
+                    } else {
+                        if (!this.isPlayerPiece(this.board[row][c])) {
+                            moves.push({ row, col: c });
+                        }
+                        break;
+                    }
+                }
+                // Droite
+                for (let c = col + 1; c < 8; c++) {
+                    if (this.board[row][c] === '') {
+                        moves.push({ row, col: c });
+                    } else {
+                        if (!this.isPlayerPiece(this.board[row][c])) {
+                            moves.push({ row, col: c });
+                        }
+                        break;
+                    }
+                }
+            }
             return moves;
         },
         isPossibleMove(row, col) {
             return this.possibleMoves.some(m => m.row === row && m.col === col);
+        },
+        isPlayerPiece(piece) {
+            if (this.currentPlayer === 'white') {
+                return ['♙', '♖', '♘', '♗', '♕', '♔'].includes(piece);
+            } else {
+                return ['♟', '♜', '♞', '♝', '♛', '♚'].includes(piece);
+            }
         }
-
-
     }
 };
 </script>
@@ -133,9 +191,11 @@ export default {
 .dark {
     background-color: #b58863;
 }
+
 .highlight {
     background-color: rgba(0, 255, 0, 0.3);
 }
+
 .selected {
     z-index: 1000;
     outline: 3px solid yellow;
